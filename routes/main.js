@@ -92,18 +92,15 @@ module.exports = function(app, shopData) {
                     return console.error(err.message);
                 }
                 else{
-                    result = 'Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email;
-            result += 'Your password is: '+ req.body.password +' and your hashed password is: '+ hashedPassword;
-            res.send(result);
                 }
 
             })
         
           })
           
-
+          res.render("index.ejs",shopData);
         // saving data in database
-        res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
+        // res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
     }); 
 
     app.get('/list', function(req, res) {
@@ -120,7 +117,7 @@ module.exports = function(app, shopData) {
     });
 
     app.get('/listusers', function(req, res) {
-        let sqlquery = "SELECT username,firstname,lastname,email from users"; 
+        let sqlquery = "SELECT * from users"; 
         // execute sql query
         db.query(sqlquery, (err, result) => {
             if (err) {
@@ -132,6 +129,23 @@ module.exports = function(app, shopData) {
          });
     });
 
+    app.get('/deleteuser', function (req, res) {
+        res.render('deleteuser.ejs', shopData);     
+    });
+    app.post('/deleteuser1', function (req,res) {
+        //searching in the database
+        let query = "DELETE FROM users WHERE username LIKE '%" + req.body.keyword + "%'";
+        // execute delete query
+        console.log("1")
+        db.query(query, (err, result) => {
+            if (err) {
+                res.redirect('./'); 
+            }else {
+                console.log("2")
+                res.redirect('./listusers'); 
+            }
+        });                                                                 
+    });
 
     app.get('/addbook', function (req, res) {
         res.render('addbook.ejs', shopData);
