@@ -62,8 +62,9 @@ module.exports = function(app, shopData) {
                       console.error(err.message + "A");
                     }
                     else if (result == true) {
-                      // TODO: Send message
-                      res.send("You have an account!")
+                    //   // TODO: Send message
+                    //   res.render("list.ejs",shopData);
+                      res.send('You have an account! <a href='+'./list'+'>List Book</a>')
                     }
                     else {
                       // TODO: Send message
