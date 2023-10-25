@@ -1,6 +1,14 @@
+
 module.exports = function(app, shopData) {
+    const redirectLogin = (req, res, next) => {
+        if (!req.session.userId ) {
+          res.redirect('./login')
+        } else { next (); }
+    }
+
     const bcrypt = require('bcrypt');
 
+    
     // Handle our routes
     app.get('/',function(req,res){
         res.render('index.ejs', shopData)
@@ -8,6 +16,15 @@ module.exports = function(app, shopData) {
     app.get('/about',function(req,res){
         res.render('about.ejs', shopData);
     });
+
+    app.get('/logout', redirectLogin, (req,res) => {
+        req.session.destroy(err => {
+        if (err) {
+          return res.redirect('./')
+        }
+        res.send('you are now logged out. <a href='+'./'+'>Home</a>');
+        })
+    })
 
     app.get('/login', function (req,res) {
         res.render('login.ejs', shopData);                                                                     
@@ -18,21 +35,23 @@ module.exports = function(app, shopData) {
         const bcrypt = require('bcrypt');
         let sqlquery = "SELECT hashedPassword FROM users WHERE username = ?";
         let user = [req.body.username]
+        // Save user session here, when login is successful
+        req.session.userId = req.body.username;
 
-        console.log("111111111")
+        // console.log("111111111")
 
         db.query(sqlquery, user, ( err, result)=>{
             
-        console.log("222222")
+        // console.log("222222")
             if(err){
                 
-        console.log("33333")
+        // console.log("33333")
                 console.error(err);
                 
                 res.status(500).send('Internal Server Error');
             }else{
                 
-        console.log("111111111")
+        // console.log("111111111")
                 console.log(result);
                 hashedPassword = result;
                 console.log(hashedPassword);
@@ -103,7 +122,7 @@ module.exports = function(app, shopData) {
         // res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
     }); 
 
-    app.get('/list', function(req, res) {
+    app.get('/list', redirectLogin, function(req, res) {
         let sqlquery = "SELECT * FROM books"; // query database to get all the books
         // execute sql query
         db.query(sqlquery, (err, result) => {
