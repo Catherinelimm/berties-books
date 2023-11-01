@@ -1,5 +1,6 @@
 
 module.exports = function(app, shopData) {
+    const { check, validationResult } = require('express-validator');
     const redirectLogin = (req, res, next) => {
         if (!req.session.userId ) {
           res.redirect('./login')
@@ -7,7 +8,7 @@ module.exports = function(app, shopData) {
     }
 
     const bcrypt = require('bcrypt');
-
+    
     
     // Handle our routes
     app.get('/',function(req,res){
@@ -68,7 +69,7 @@ module.exports = function(app, shopData) {
                     }
                     else {
                       // TODO: Send message
-                      res.send("Incorrecr Passwoord!")
+                      res.send("Incorrect Password!")
                     }
                   });
               
@@ -97,10 +98,13 @@ module.exports = function(app, shopData) {
     app.get('/register', function (req,res) {
         res.render('register.ejs', shopData);                                                                     
     });                                                                                                 
-    app.post('/registered', function (req,res) {
+    app.post('/registered',[check('email').isEmail()], check('password').isLength({ min: 8 }), function (req,res) {
         const saltRounds = 10;
         const plainPassword = req.body.password;
-        
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.redirect('./register'); }
+        else { 
         bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
             // Store hashed password in your database.
             let sqlquery = "INSERT INTO users (username, firstname, lastname, email, hashedpassword) VALUES (?,?,?,?,?)";
@@ -120,7 +124,8 @@ module.exports = function(app, shopData) {
           
           res.render("index.ejs",shopData);
         // saving data in database
-        // res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
+        // res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                 
+        }                                             
     }); 
 
     app.get('/list', redirectLogin, function(req, res) {
