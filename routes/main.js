@@ -116,13 +116,11 @@ module.exports = function(app, shopData) {
                     return console.error(err.message);
                 }
                 else{
+                    res.render("index.ejs",shopData);
+                    //res.send(req.body.first + " " + req.body.last)
                 }
-
             })
-        
           })
-          
-          res.render("index.ejs",shopData);
         // saving data in database
         // res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                 
         }                                             
